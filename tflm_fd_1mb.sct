@@ -1,0 +1,50 @@
+#include "WE2_device_addr.h"
+
+#define ICTM_BASE        BASE_ADDR_ITCM_ALIAS
+#define ICTM_SIZE        ITCM_SIZE
+
+#define DCTM_BASE       BASE_ADDR_DTCM_ALIAS
+#define DCTM_SIZE       DTCM_SIZE
+
+#define SRAMA_START     BASE_ADDR_SRAM0_ALIAS
+#define SRAMA_BASE      (BOOT2NDLOADER_BASE + BOOT2NDLOADER_SIZE)
+#define SRAMA_SIZE      (SRAM0_SIZE + SRAM1_SIZE) - (SRAMA_BASE - SRAMA_START)
+
+#define SRAMB_BASE      BASE_ADDR_SRAM2_ALIAS
+#define SRAMB_SIZE      SRAM2_SIZE
+
+#define DCTM_DATA_SIZE  (DCTM_SIZE - __STACK_SIZE - __HEAP_SIZE)
+#define __STACK_HEAP_BASE    (DCTM_BASE + DCTM_DATA_SIZE + __STACK_SIZE)
+#define __STACK_SIZE    0x0004000
+#define __HEAP_SIZE     0x0100000
+
+
+LR_ICTM ICTM_BASE ICTM_SIZE {
+    ER_ICTM +0 {
+        *.o (RESET, +First)
+        *(InRoot$$Sections)
+        * (+RO-CODE)
+        * (+RW-CODE)
+        * (+XO)
+    }
+}
+
+LR_DCTM DCTM_BASE DCTM_DATA_SIZE {
+    ER_DCTM +0 {
+        * (+RO-DATA)
+        * (+RW-DATA)
+    }
+}
+
+ARM_LIB_STACK __STACK_HEAP_BASE ALIGN 8 EMPTY -__STACK_SIZE {
+}
+
+ARM_LIB_HEAP __STACK_HEAP_BASE ALIGN 8 EMPTY __HEAP_SIZE {
+}
+
+LR_SRAMA SRAMA_BASE SRAMA_SIZE {
+    ER_SRAMA {
+        * (+ZI)
+        * (.bss.tensor_arena)
+    }
+}
