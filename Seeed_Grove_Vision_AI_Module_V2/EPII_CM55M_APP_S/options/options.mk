@@ -168,7 +168,11 @@ include $(EPII_ROOT)/interface/interface.mk
 -include $(EPII_ROOT)/customer/customer_sec.mk
 
 # library makefile
+ifeq ($(CUSTOM_LIBRARY), y)
+-include $(EPII_ROOT)/custom/library/library.mk
+else
 -include $(EPII_ROOT)/library/library.mk
+endif
 ifeq ($(TRUSTZONE), y)
 ALL_DEFINES += -DTRUSTZONE
 override TRUSTZONE_TYPE := $(strip $(TRUSTZONE_TYPE))
